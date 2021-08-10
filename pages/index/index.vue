@@ -16,7 +16,7 @@
         },
         methods: {
             handleMessage(event) {
-                uni.setStorageSync('notepad-content', event.detail.data.value);
+                uni.setStorageSync('notepad-content', event.detail.data[0].value);
             }
         }
     }
