@@ -1,0 +1,20 @@
+{
+  "name": "notepad",
+  "description": "单、免费、开源的手机端的记事本，基于uni-app开发。",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hai2007/Notepad.git"
+  },
+  "keywords": [
+    "notepad"
+  ],
+  "author": "你好2007",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hai2007/Notepad/issues"
+  },
+  "homepage": "https://github.com/hai2007/Notepad#readme",
+  "dependencies": {
+    "open-web-editor": "^0.3.2"
+  }
+}

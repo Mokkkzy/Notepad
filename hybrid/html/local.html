@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>备忘录</title>
+    <script src="./js/open-web-editor.min.js"></script>
+    <style>
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script>
+
+        // https://www.npmjs.com/package/open-web-editor
+        new OpenWebEditor({
+            el: document.getElementById('root'),
+            color: {
+                background: "white", /*编辑器背景*/
+                text: "#000000", /*文本颜色*/
+                number: "#888484", /*行号颜色*/
+                edit: "#eaeaf1", /*编辑行背景色*/
+                cursor: "#ff0000", /*光标颜色*/
+                select: "#6c6cf1", /*选择背景*/
+            }
+        });
+
+    </script>
+</body>
+
+</html>

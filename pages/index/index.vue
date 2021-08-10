@@ -1,23 +1,23 @@
 <template>
-	<view class="menu-view">
-    打包测试
-	</view>
+    <view class="menu-view">
+        <web-view src="/hybrid/html/local.html"></web-view>
+    </view>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				
-			}
-		},
-		onLoad() {
+    export default {
+        data() {
+            return {
 
-		},
-		methods: {
+            }
+        },
+        onLoad() {
 
-		}
-	}
+        },
+        methods: {
+
+        }
+    }
 </script>
 
 <style>
