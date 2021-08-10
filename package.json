@@ -1,6 +1,6 @@
 {
   "name": "notepad",
-  "description": "单、免费、开源的手机端的记事本，基于uni-app开发。",
+  "description": "简单、免费、开源的手机端的记事本，基于uni-app开发。",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hai2007/Notepad.git"

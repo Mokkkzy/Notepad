@@ -1,42 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>备忘录</title>
-    <script src="./js/open-web-editor.min.js"></script>
-    <style>
-        #root {
-            width: 100vw;
-            height: 100vh;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>备忘录</title>
+        <link rel="shortcut icon" href="./img/logo.png">
+        <script src="./js/open-web-editor.min.js"></script>
+        <script src="./js/uni.webview.1.5.2.js"></script>
+        <link rel="stylesheet" href="./css/style.css">
+    </head>
 
-        body {
-            margin: 0;
-        }
-    </style>
-</head>
+    <body>
+        <div id="root"></div>
+        <script>
+            // https://www.npmjs.com/package/open-web-editor
+            var owe = new OpenWebEditor({
+                el: document.getElementById('root'),
+                color: {
+                    background: "white"
+                },
+                content: decodeURIComponent((window.location.href + "").split('?')[1])
+            });
 
-<body>
-    <div id="root"></div>
-    <script>
-
-        // https://www.npmjs.com/package/open-web-editor
-        new OpenWebEditor({
-            el: document.getElementById('root'),
-            color: {
-                background: "white", /*编辑器背景*/
-                text: "#000000", /*文本颜色*/
-                number: "#888484", /*行号颜色*/
-                edit: "#eaeaf1", /*编辑行背景色*/
-                cursor: "#ff0000", /*光标颜色*/
-                select: "#6c6cf1", /*选择背景*/
-            }
-        });
-
-    </script>
-</body>
+            // 编辑器管理的文本发生改变后会主动触发
+            owe.updated(function() {
+                uni.postMessage({
+                    data: {
+                        value: encodeURIComponent(owe.valueOf())
+                    }
+                });
+            });
+        </script>
+    </body>
 
 </html>

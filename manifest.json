@@ -2,7 +2,7 @@
     "name" : "备忘录",
     "appid" : "__UNI__EB8A165",
     "description" : "简单、免费、开源的手机端的记事本，基于uni-app开发。 ",
-    "versionName" : "0.1.0-alpha.2",
+    "versionName" : "0.1.0-alpha.4",
     "versionCode" : "100",
     "transformPx" : false,
     /* 5+App特有相关 */
