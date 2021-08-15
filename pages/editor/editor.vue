@@ -9,12 +9,19 @@
         data() {
             return {
                 url: "",
-                key: ""
+                key: "",
+                title: ""
             }
         },
         onLoad(options) {
             this.key = options.key;
+            this.title = options.name;
             this.url = "/hybrid/html/local.html?" + uni.getStorageSync('notepad-content-' + this.key);
+        },
+        onReady() {
+            uni.setNavigationBarTitle({
+                title: this.title
+            });
         },
         methods: {
             handleMessage(event) {

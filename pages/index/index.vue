@@ -8,9 +8,9 @@
 
         <!-- 列表 -->
         <view class="list">
-            <view class="item" v-for='(item,key) in list' :key="key" @click="openEditor(item)"
-                @longpress='doDelete(key,item.key)'>
-                <view class='editor' @click.stop="updateTitle(key,item.name)">
+            <view class="item" :style='{backgroundColor:colors[item.bgcolor]}' v-for='(item,key) in list' :key="key"
+                @click="openEditor(item)" @longpress='doDelete(key,item.key)'>
+                <view class='editor' @click.stop="updateNav(key,item.name,item.bgcolor)">
                     修改标题
                 </view>
                 <view class="title">
@@ -26,9 +26,13 @@
         <view class="dialog" v-show='dialogFlag'>
             <view>
                 <view class='title'>
-                    请输入标题
+                    {{dialogTitle}}
                 </view>
-                <input type="text" v-model='helpTitleInput' />
+                <input type="text" v-model='helpTitleInput' :adjust-position="true" />
+                <view class="bgcolor">
+                    <view @click="helpBgColor=key" v-for='(value,key) in colors' :key='key'
+                        :style='{backgroundColor:value}' :class='{active:helpBgColor==key}'></view>
+                </view>
                 <view class="btn-list">
                     <button type="default" @click="doDialogClose()">取消</button>
                     <button type="warn" @click="doDialogback()">确认</button>
@@ -46,7 +50,14 @@
             return {
                 list: [],
                 helpTitleInput: "",
-                dialogFlag: false
+                helpBgColor: "yellow",
+                dialogFlag: false,
+                dialogTitle: "",
+                colors: {
+                    yellow: "#ff9800",
+                    green: "#8bc34a",
+                    red: "#f44336"
+                }
             }
         },
         onLoad() {
@@ -70,24 +81,27 @@
             },
 
             // 修改标题
-            updateTitle(index, oldtitle) {
-                this.unpateTitle(titleName => {
+            updateNav(index, oldtitle, oldBgColor) {
+                this.openEditorDialog((titleName, bgColor) => {
                     this.list[index].name = titleName;
+                    this.list[index].bgcolor = bgColor;
                     this.$forceUpdate();
                     uni.setStorageSync('notepad-content-list', JSON.stringify(this.list));
-                }), oldtitle;
+                }, '修改', oldtitle, oldBgColor);
             },
 
             // 弹框打开输入框
-            unpateTitle(_callback, initTitle = "") {
+            openEditorDialog(_callback, dialogTitle, initTitle = "", initBgColor = 'yellow') {
+                this.dialogTitle = dialogTitle;
                 this.helpTitleInput = initTitle;
+                this.helpBgColor = initBgColor;
                 this.dialogFlag = true;
                 callback = _callback;
             },
 
             // 弹框确定按钮
             doDialogback() {
-                callback(this.helpTitleInput);
+                callback(this.helpTitleInput, this.helpBgColor);
                 this.doDialogClose();
             },
 
@@ -100,18 +114,19 @@
             // 新增
             doAdd() {
 
-                this.unpateTitle(titleName => {
+                this.openEditorDialog((titleName, bgColor) => {
 
                     let newKey = new Date().valueOf();
                     this.list.push({
                         key: newKey,
+                        bgcolor: bgColor,
                         name: titleName
                     });
 
                     // 存储起来
                     uni.setStorageSync('notepad-content-list', JSON.stringify(this.list));
                     uni.setStorageSync('notepad-content-' + newKey, '')
-                });
+                }, '新建');
             },
 
             // 打开
@@ -130,7 +145,8 @@
 <style lang="scss" scoped>
     .add {
         position: fixed;
-        bottom: 20rpx;
+        z-index: 2;
+        top: calc(100vh - 120rpx);
         right: 20rpx;
         width: 100rpx;
         height: 100rpx;
@@ -161,6 +177,7 @@
                 margin-bottom: 40rpx;
                 margin-right: 30px;
                 overflow: auto;
+                min-height: 100rpx;
             }
 
             &>.editor {
@@ -194,6 +211,19 @@
 
             &>.title {
                 padding-top: 30rpx;
+            }
+
+            &>.bgcolor {
+                &>view {
+                    display: inline-block;
+                    width: 40rpx;
+                    height: 40rpx;
+                    margin: 0 10rpx;
+
+                    &.active {
+                        outline: 1px solid gray;
+                    }
+                }
             }
 
             &>input {
