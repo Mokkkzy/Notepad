@@ -1,13 +1,13 @@
 <script>
     export default {
         onLaunch: function() {
-            console.log('App Launch')
+            plus.navigator.closeSplashscreen()
         },
         onShow: function() {
-            console.log('App Show')
+
         },
         onHide: function() {
-            console.log('App Hide')
+
         }
     }
 </script>
