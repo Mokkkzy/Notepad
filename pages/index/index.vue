@@ -88,7 +88,7 @@
                     remark: "随笔",
                     work: "工作",
                     study: "学习",
-                    willdo: "代办"
+                    willdo: "待办"
                 }
             }
         },
