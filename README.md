@@ -1,3 +1,7 @@
+<p align="center">
+    <img width="400" src="./review.png">
+</p>
+
 # Notepad
 简单、免费、开源的手机端的记事本，基于uni-app开发。
 

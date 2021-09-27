@@ -1,248 +1,361 @@
 <template>
-    <view>
+    <view class="menu-view">
 
-        <!-- 新增按钮 -->
-        <view class="add" @click="doAdd()">
-            +
+        <view class="nav">
+            <text :class='{active:active=="all"}' @click='active="all"'>全部</text>
+            <text v-for="(value,key) in types" :key='key' :class='{active:active==key}'
+                @click='active=key'>{{value}}</text>
+
+            <!-- 新增按钮 -->
+            <text class='btn' @click="openAddDialog"></text>
         </view>
 
         <!-- 列表 -->
         <view class="list">
-            <view class="item" :style='{backgroundColor:colors[item.bgcolor]}' v-for='(item,key) in list' :key="key"
-                @click="openEditor(item)" @longpress='doDelete(key,item.key)'>
-                <view class='editor' @click.stop="updateNav(key,item.name,item.bgcolor)">
-                    修改标题
+            <view class="list-item" v-for="(item,index) in menulist" :key='index'
+                v-if='item.type==active || active=="all"' @click="openEditor(index)">
+                <view class="title" :class="item.type">
+                    {{item.title}}
                 </view>
-                <view class="title">
-                    {{item.name}}
+                <view class="info">
+                    {{item.remark}}
                 </view>
-                <view class="time">
-                    {{new Date(item.key).toLocaleDateString()}}
+                <view class="date">
+                    {{item.date}}
+                </view>
+
+                <!-- 操作按钮 -->
+                <view class="btn delete" @click.stop="openDeleteDialog(index,item.key)">
+                    删除
+                </view>
+                <view class="btn editor" @click.stop="openEditorDialog(index)">
+                    编辑
                 </view>
             </view>
         </view>
 
-        <!-- 弹框输入 -->
-        <view class="dialog" v-show='dialogFlag'>
-            <view>
-                <view class='title'>
-                    {{dialogTitle}}
+        <!-- 弹框(新增、编辑) -->
+        <view class="dialog" v-if="dialog.isOpen">
+            <view class="view">
+                <view class="title">
+                    {{dialog.title}}
                 </view>
-                <input type="text" v-model='helpTitleInput' :adjust-position="true" />
-                <view class="bgcolor">
-                    <view @click="helpBgColor=key" v-for='(value,key) in colors' :key='key'
-                        :style='{backgroundColor:value}' :class='{active:helpBgColor==key}'></view>
+                <view class="input-item">
+                    <text class='sub-title'>标题：</text>
+                    <input class='input text' type="text" v-model="dialog.value.title" />
+                </view>
+                <view class="input-item">
+                    <text class='sub-title'>说明：</text>
+                    <textarea class='input text' v-model="dialog.value.remark" />
+                </view>
+                <view class="input-item">
+                    <text class='sub-title'>分类：</text>
+                    <radio-group class='input' @change="e=>{dialog.value.type=e.detail.value}">
+                        <label class="radio" v-for="(value,key) in types" :key='key'>
+                            <radio :value="key" :checked="dialog.value.type==key" />
+                            <text>{{value}}</text>
+                        </label>
+                    </radio-group>
                 </view>
                 <view class="btn-list">
-                    <button type="default" @click="doDialogClose()">取消</button>
-                    <button type="warn" @click="doDialogback()">确认</button>
+                    <button type="default" @click="dialog.isOpen=false">取消</button>
+                    <button type="primary" @click="doBack()">确认</button>
                 </view>
             </view>
         </view>
 
     </view>
 </template>
-
 <script>
-    let callback = null;
+    import dateToString from '../../tool/dateToString.js';
+    let _index = -1;
     export default {
         data() {
             return {
-                list: [],
-                helpTitleInput: "",
-                helpBgColor: "yellow",
-                dialogFlag: false,
-                dialogTitle: "",
-                colors: {
-                    yellow: "#ff9800",
-                    green: "#8bc34a",
-                    red: "#f44336"
+                menulist: [],
+                active: "all",
+                dialog: {
+                    isOpen: false,
+                    title: "",
+                    type: "",
+                    value: {
+                        title: "",
+                        remark: "",
+                        type: ""
+                    }
+                },
+                types: {
+                    remark: "随笔",
+                    work: "工作",
+                    study: "学习",
+                    willdo: "待办"
                 }
             }
         },
         onLoad() {
-            this.list = JSON.parse(uni.getStorageSync('notepad-content-list') || "[]");
+            this.menulist = JSON.parse(uni.getStorageSync('notepad-menu') || "[]");
         },
         methods: {
 
-            // 删除
-            doDelete(index, key) {
+            // 弹框确认
+            doBack() {
+                this.dialog.isOpen = false;
+
+                // type=add 新增
+                if (this.dialog.type == 'add') {
+                    let newKey = new Date().valueOf();
+                    this.menulist.push({
+                        key: newKey,
+                        title: this.dialog.value.title,
+                        remark: this.dialog.value.remark,
+                        type: this.dialog.value.type,
+                        date: dateToString()
+                    });
+                    uni.setStorageSync('notepad-editor-' + newKey, '');
+                }
+
+                // type=editor修改
+                else if (this.dialog.type == 'editor') {
+                    this.menulist[_index].title = this.dialog.value.title;
+                    this.menulist[_index].remark = this.dialog.value.remark;
+                    this.menulist[_index].type = this.dialog.value.type;
+                    this.menulist[_index].date = dateToString();
+                }
+
+                // 存储起来
+                uni.setStorageSync('notepad-menu', JSON.stringify(this.menulist));
+
+            },
+
+            // 打开删除弹框
+            openDeleteDialog(index, key) {
+
                 uni.showModal({
                     title: '温馨提示',
                     content: '是否删除此备忘页',
                     success: res => {
                         if (res.confirm) {
-                            this.list.splice(index, 1);
-                            uni.setStorageSync('notepad-content-list', JSON.stringify(this.list));
-                            uni.removeStorageSync('notepad-content-' + key);
+                            this.menulist.splice(index, 1);
+                            uni.setStorageSync('notepad-menu', JSON.stringify(this.menulist));
+                            uni.removeStorageSync('notepad-editor-' + key);
                         }
                     }
                 });
+
             },
 
-            // 修改标题
-            updateNav(index, oldtitle, oldBgColor) {
-                this.openEditorDialog((titleName, bgColor) => {
-                    this.list[index].name = titleName;
-                    this.list[index].bgcolor = bgColor;
-                    this.$forceUpdate();
-                    uni.setStorageSync('notepad-content-list', JSON.stringify(this.list));
-                }, '修改', oldtitle, oldBgColor);
+            // 打开编辑弹框
+            openEditorDialog(index) {
+                _index = index;
+                let curItem = this.menulist[_index];
+                this.dialog = {
+                    isOpen: true,
+                    title: "编辑",
+                    type: "editor",
+                    value: {
+                        title: curItem.title,
+                        remark: curItem.remark,
+                        type: curItem.type
+                    }
+                }
             },
 
-            // 弹框打开输入框
-            openEditorDialog(_callback, dialogTitle, initTitle = "", initBgColor = 'yellow') {
-                this.dialogTitle = dialogTitle;
-                this.helpTitleInput = initTitle;
-                this.helpBgColor = initBgColor;
-                this.dialogFlag = true;
-                callback = _callback;
+            // 打开新增弹框
+            openAddDialog() {
+                this.dialog = {
+                    isOpen: true,
+                    title: "新增",
+                    type: "add",
+                    value: {
+                        title: "",
+                        remark: "",
+                        type: this.active == 'all' ? "remark" : this.active
+                    }
+                }
             },
 
-            // 弹框确定按钮
-            doDialogback() {
-                callback(this.helpTitleInput, this.helpBgColor);
-                this.doDialogClose();
-            },
-
-            // 弹框取消按钮
-            doDialogClose() {
-                this.dialogFlag = false;
-                this.helpTitleInput = "";
-            },
-
-            // 新增
-            doAdd() {
-
-                this.openEditorDialog((titleName, bgColor) => {
-
-                    let newKey = new Date().valueOf();
-                    this.list.push({
-                        key: newKey,
-                        bgcolor: bgColor,
-                        name: titleName
-                    });
-
-                    // 存储起来
-                    uni.setStorageSync('notepad-content-list', JSON.stringify(this.list));
-                    uni.setStorageSync('notepad-content-' + newKey, '')
-                }, '新建');
-            },
-
-            // 打开
-            openEditor(item) {
+            // 打开编辑内容界面
+            openEditor(index) {
+                let item = this.menulist[index];
                 uni.navigateTo({
-                    url: `/pages/editor/editor?key=${item.key}&name=${item.name}`,
+                    url: `/pages/editor/editor?key=${item.key}&name=${item.title}`,
                     fail: error => {
                         console.log(error);
                     }
                 });
             }
+
         }
     }
 </script>
-
 <style lang="scss" scoped>
-    .add {
-        position: fixed;
-        z-index: 2;
-        top: calc(100vh - 120rpx);
-        right: 20rpx;
-        width: 100rpx;
-        height: 100rpx;
-        line-height: 100rpx;
-        border-radius: 50%;
-        background-color: black;
-        color: white;
-        text-align: center;
-        font-size: 80rpx;
-        font-family: cursive;
-    }
+    .menu-view {
 
-    .list {
-        &>.item {
-            background-color: #d3cdcd;
-            margin: 20rpx;
-            padding: 20rpx;
-            color: white;
-            display: inline-block;
-            width: 295rpx;
-            font-size: 12px;
-            vertical-align: top;
+        // 顶部导航
+        &>.nav {
+            background-color: white;
+            padding: 10rpx;
+            padding-left: 30rpx;
             position: relative;
 
-            &>.title {
-                color: #000000;
+            &>text {
+                padding: 20rpx;
+                display: inline-block;
                 font-weight: 200;
-                margin-bottom: 40rpx;
-                margin-right: 30px;
-                overflow: auto;
-                min-height: 100rpx;
-            }
+                font-size: 30rpx;
+                vertical-align: top;
 
-            &>.editor {
-                position: absolute;
-                right: 5px;
-                top: 5px;
-                width: 25px;
-                height: 25px;
-                font-size: 0;
-                background-image: url('../../static/editor.png');
-                background-size: 100% auto;
+                &.active {
+                    color: #2196f3;
+                    font-weight: 400;
+                    border-bottom: 4rpx solid #2196f3;
+                }
+
+                &.btn {
+                    position: absolute;
+                    right: 20rpx;
+                    top: 0;
+                    width: 70rpx;
+                    font-weight: 800;
+                    font-size: 40rpx;
+                    height: 100%;
+                    padding: 0;
+                    background-image: url(../../static/add.png);
+                    background-size: 100% auto;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                }
             }
         }
-    }
 
-    .dialog {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background-image: url(../../static/bg.png);
-        background-repeat: repeat;
+        // 弹框
+        &>.dialog {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            background-color: #e3e3e8b0;
 
-        &>view {
-            background-color: white;
-            width: 600rpx;
-            margin-left: 75rpx;
-            margin-top: 30vh;
-            text-align: center;
+            &>.view {
+                background-color: white;
+                width: 650rpx;
+                position: fixed;
+                left: 50rpx;
+                top: 300rpx;
 
-            &>.title {
-                padding-top: 30rpx;
-            }
+                &>.title {
+                    text-align: center;
+                    margin-top: 40rpx;
+                }
 
-            &>.bgcolor {
-                &>view {
-                    display: inline-block;
-                    width: 40rpx;
-                    height: 40rpx;
-                    margin: 0 10rpx;
+                &>.input-item {
+                    font-size: 28rpx;
+                    margin: 40rpx 20rpx;
+                    white-space: nowrap;
 
-                    &.active {
-                        outline: 1px solid gray;
+                    &>.sub-title {
+                        vertical-align: top;
+                    }
+
+                    &>.input {
+                        display: inline-block;
+                        font-size: 26rpx;
+
+                        &.text {
+                            border-bottom: 2rpx solid #dadadf;
+                            margin-left: 26rpx;
+                            width: calc(100% - 140rpx);
+                            padding: 10rpx;
+                        }
+
+                        .radio {
+                            margin-left: 7rpx;
+
+                            &>radio {
+                                transform: scale(0.5);
+                            }
+
+                            &>text {
+                                margin-left: -7rpx;
+                            }
+                        }
+                    }
+                }
+
+                &>.btn-list {
+                    text-align: center;
+
+                    &>button {
+                        width: 30%;
+                        display: inline-block;
+                        font-size: 28rpx;
+                        margin: 20rpx;
                     }
                 }
             }
+        }
 
-            &>input {
-                border-bottom: 1px solid gray;
+        // 列表
+        .list {
+            &>.list-item {
+                background-color: white;
                 margin: 40rpx;
-                padding: 10rpx;
-                font-size: 30rpx;
-                text-align: left;
-            }
+                padding: 20rpx;
+                border-radius: 10rpx;
+                padding-right: 120rpx;
+                position: relative;
 
-            &>.btn-list {
-                padding-top: 40rpx;
+                &>.title {
+                    padding: 10rpx;
+                    padding-left: 50rpx;
+                    background-repeat: no-repeat;
+                    background-position: left center;
 
-                &>button {
-                    display: inline-block;
-                    width: 200rpx;
-                    margin: 0 20rpx 30rpx 20rpx;
+                    &.remark {
+                        background-image: url(../../static/ico3.png);
+                    }
+
+                    &.study,
+                    &.work {
+                        background-image: url(../../static/ico1.png);
+                    }
+
+                    &.willdo {
+                        background-image: url(../../static/ico2.png);
+                    }
+                }
+
+                &>.info {
+                    color: gray;
+                    font-size: 27rpx;
+                    margin-top: 10rpx;
+                }
+
+                &>.date {
+                    font-size: 24rpx;
+                    margin-top: 10rpx;
+                }
+
+                &>.btn {
+                    position: absolute;
+                    right: 0;
+                    color: white;
+                    font-size: 24rpx;
+                    padding: 5rpx 10rpx;
+
+                    &.delete {
+                        top: 20rpx;
+                        background-color: #ff9800;
+                    }
+
+                    &.editor {
+                        top: 80rpx;
+                        background-color: #2196f3;
+                    }
                 }
             }
         }
+
     }
 </style>

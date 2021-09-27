@@ -1,7 +1,13 @@
 <script>
     export default {
         onLaunch: function() {
+
+            // #ifdef APP-PLUS
+
+            // 关闭启动页面
             plus.navigator.closeSplashscreen()
+
+            // #endif
         },
         onShow: function() {
 
@@ -13,5 +19,7 @@
 </script>
 
 <style>
-    /*每个页面公共css */
+    page {
+        background-color: #f8f8f8;
+    }
 </style>

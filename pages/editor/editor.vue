@@ -1,5 +1,5 @@
 <template>
-    <view class="menu-view">
+    <view>
         <web-view v-bind:src="url" @message="handleMessage"></web-view>
     </view>
 </template>
@@ -16,7 +16,7 @@
         onLoad(options) {
             this.key = options.key;
             this.title = options.name;
-            this.url = "/hybrid/html/local.html?" + uni.getStorageSync('notepad-content-' + this.key);
+            this.url = "/hybrid/html/local.html?" + uni.getStorageSync('notepad-editor-' + this.key);
         },
         onReady() {
             uni.setNavigationBarTitle({
@@ -25,12 +25,8 @@
         },
         methods: {
             handleMessage(event) {
-                uni.setStorageSync('notepad-content-' + this.key, event.detail.data[0].value);
+                uni.setStorageSync('notepad-editor-' + this.key, event.detail.data[0].value);
             }
         }
     }
 </script>
-
-<style>
-
-</style>
