@@ -19,9 +19,10 @@
             this.url = "/hybrid/html/local.html?" + uni.getStorageSync('notepad-editor-' + this.key);
         },
         onReady() {
-            uni.setNavigationBarTitle({
-                title: this.title
-            });
+            // 使用默认的（后续可能改动，先注释）
+            // uni.setNavigationBarTitle({
+            //     title: this.title
+            // });
         },
         methods: {
             handleMessage(event) {

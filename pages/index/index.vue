@@ -2,12 +2,14 @@
     <view class="menu-view">
 
         <view class="nav">
+            <text class='btn notify' :class='{active:notify}' @click="goNotify"></text>
+
             <text :class='{active:active=="all"}' @click='active="all"'>全部</text>
             <text v-for="(value,key) in types" :key='key' :class='{active:active==key}'
                 @click='active=key'>{{value}}</text>
 
             <!-- 新增按钮 -->
-            <text class='btn' @click="openAddDialog"></text>
+            <text class='btn add' @click="openAddDialog"></text>
         </view>
 
         <!-- 列表 -->
@@ -72,8 +74,14 @@
     export default {
         data() {
             return {
+
+                // 备忘录列表
                 menulist: [],
+
+                // 当前活动页签
                 active: "all",
+
+                // 弹框控制
                 dialog: {
                     isOpen: false,
                     title: "",
@@ -84,18 +92,30 @@
                         type: ""
                     }
                 },
+
+                // 主页签
                 types: {
                     remark: "随笔",
                     work: "工作",
                     study: "学习",
                     willdo: "待办"
-                }
+                },
+
+                // 是否有通知
+                notify: false
             }
         },
         onLoad() {
             this.menulist = JSON.parse(uni.getStorageSync('notepad-menu') || "[]");
         },
         methods: {
+
+            // 去通知页面
+            goNotify() {
+                uni.navigateTo({
+                    url: '../notify/notify'
+                });
+            },
 
             // 弹框确认
             doBack() {
@@ -196,7 +216,7 @@
             background-color: white;
             box-sizing: border-box;
             padding: 10rpx;
-            padding-left: 30rpx;
+            padding-left: 90rpx;
             position: fixed;
             box-shadow: 1px 3px 11px 3px #d7d1d0;
             z-index: 1;
@@ -221,18 +241,30 @@
                 }
 
                 &.btn {
-                    position: absolute;
-                    right: 20rpx;
-                    top: 0;
-                    width: 70rpx;
-                    font-weight: 800;
-                    font-size: 40rpx;
                     height: 100%;
                     padding: 0;
-                    background-image: url(../../static/add.png);
                     background-size: 100% auto;
                     background-repeat: no-repeat;
                     background-position: center;
+                    position: absolute;
+                    width: 70rpx;
+                    top: 0;
+
+                    &.notify {
+                        background-image: url(../../static/bell.png);
+                        left: 0rpx;
+                        background-size: auto 50%;
+                        padding: 0 10rpx;
+
+                        &.active {
+                            background-image: url(../../static/bell-dot.png);
+                        }
+                    }
+
+                    &.add {
+                        background-image: url(../../static/add.png);
+                        right: 20rpx;
+                    }
                 }
             }
         }
@@ -343,6 +375,7 @@
                 }
 
                 &>.info {
+                    min-height: 30rpx;
                     color: gray;
                     font-size: 27rpx;
                     margin-top: 10rpx;
@@ -359,14 +392,15 @@
                     color: white;
                     font-size: 24rpx;
                     padding: 5rpx 10rpx;
+                    border-radius: 10rpx 0 0 10rpx;
 
                     &.delete {
-                        top: 20rpx;
+                        top: 40rpx;
                         background-color: #ff9800;
                     }
 
                     &.editor {
-                        top: 80rpx;
+                        top: 100rpx;
                         background-color: #2196f3;
                     }
                 }
