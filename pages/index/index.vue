@@ -42,11 +42,11 @@
                 </view>
                 <view class="input-item">
                     <text class='sub-title'>标题：</text>
-                    <input class='input text' type="text" v-model="dialog.value.title" />
+                    <textarea class='input text' auto-height v-model="dialog.value.title" />
                 </view>
                 <view class="input-item">
                     <text class='sub-title'>说明：</text>
-                    <textarea class='input text' v-model="dialog.value.remark" />
+                    <textarea class='input text' auto-height v-model="dialog.value.remark" />
                 </view>
                 <view class="input-item">
                     <text class='sub-title'>分类：</text>
@@ -194,9 +194,18 @@
         // 顶部导航
         &>.nav {
             background-color: white;
+            box-sizing: border-box;
             padding: 10rpx;
             padding-left: 30rpx;
-            position: relative;
+            position: fixed;
+            box-shadow: 1px 3px 11px 3px #d7d1d0;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            // #ifdef H5
+            top: 88rpx;
+            // #endif
+            width: 100vw;
 
             &>text {
                 padding: 20rpx;
@@ -235,14 +244,17 @@
             height: 100vh;
             left: 0;
             top: 0;
-            background-color: #e3e3e8b0;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.5);
 
             &>.view {
                 background-color: white;
                 width: 650rpx;
                 position: fixed;
-                left: 50rpx;
-                top: 300rpx;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                border-radius: 6rpx;
 
                 &>.title {
                     text-align: center;
@@ -298,6 +310,9 @@
 
         // 列表
         .list {
+            padding-top: 100rpx;
+            padding-bottom: 10rpx;
+
             &>.list-item {
                 background-color: white;
                 margin: 40rpx;
@@ -311,6 +326,7 @@
                     padding-left: 50rpx;
                     background-repeat: no-repeat;
                     background-position: left center;
+                    min-height: 30rpx;
 
                     &.remark {
                         background-image: url(../../static/ico3.png);
