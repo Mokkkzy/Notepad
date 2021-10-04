@@ -1,6 +1,6 @@
 <template>
     <view class='notify-view'>
-
+        
     </view>
 </template>
 
@@ -18,5 +18,7 @@
 </script>
 
 <style lang="scss" scoped>
-    .notify-view {}
+    .notify-view {
+        
+    }
 </style>

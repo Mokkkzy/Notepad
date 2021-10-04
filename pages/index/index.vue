@@ -112,9 +112,13 @@
 
             // 去通知页面
             goNotify() {
-                uni.navigateTo({
-                    url: '../notify/notify'
-                });
+                // uni.navigateTo({
+                //     url: '../notify/notify'
+                // });
+                uni.showToast({
+                    title: '此功能未开发',
+                    icon: 'none'
+                })
             },
 
             // 弹框确认
