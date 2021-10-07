@@ -1,8 +1,7 @@
 <template>
-    <view class="menu-view">
+    <view class="menu-view" @touchstart="doTouchStart" @touchend="doTouchEnd">
 
         <view class="nav">
-            <text class='btn notify' :class='{active:notify}' @click="goNotify"></text>
 
             <text :class='{active:active=="all"}' @click='active="all"'>全部</text>
             <text v-for="(value,key) in types" :key='key' :class='{active:active==key}'
@@ -95,14 +94,15 @@
 
                 // 主页签
                 types: {
-                    remark: "随笔",
                     work: "工作",
                     study: "学习",
-                    willdo: "待办"
+                    body: "身心",
+                    willdo: "待办",
+                    remark: "其它"
                 },
 
-                // 是否有通知
-                notify: false
+                // 滑动位置
+                touchX: 0
             }
         },
         onLoad() {
@@ -110,15 +110,26 @@
         },
         methods: {
 
-            // 去通知页面
-            goNotify() {
-                // uni.navigateTo({
-                //     url: '../notify/notify'
-                // });
-                uni.showToast({
-                    title: '此功能未开发',
-                    icon: 'none'
-                })
+            doTouchStart(e) {
+                this.touchX = e.changedTouches[0].clientX;
+            },
+            doTouchEnd(e) {
+                let distX = e.changedTouches[0].clientX - this.touchX;
+
+                let lists = ['all'];
+                for (let key in this.types) lists.push(key);
+
+                let index = lists.indexOf(this.active);
+
+                // 看下一个
+                if (distX < -50) {
+                    this.active = index == lists.length - 1 ? lists[0] : lists[index + 1];
+                }
+
+                // 看前一个
+                else if (distX > 50) {
+                    this.active = index == 0 ? lists[lists.length - 1] : lists[index - 1];
+                }
             },
 
             // 弹框确认
@@ -214,13 +225,17 @@
 </script>
 <style lang="scss" scoped>
     .menu-view {
+        height: 100vh;
+        // #ifdef H5
+        height: calc(100vh - 88rpx);
+        // #endif
 
         // 顶部导航
         &>.nav {
             background-color: white;
             box-sizing: border-box;
             padding: 10rpx;
-            padding-left: 90rpx;
+            padding-left: 20rpx;
             position: fixed;
             box-shadow: 1px 3px 11px 3px #d7d1d0;
             z-index: 1;
@@ -253,17 +268,6 @@
                     position: absolute;
                     width: 70rpx;
                     top: 0;
-
-                    &.notify {
-                        background-image: url(../../static/bell.png);
-                        left: 0rpx;
-                        background-size: auto 50%;
-                        padding: 0 10rpx;
-
-                        &.active {
-                            background-image: url(../../static/bell-dot.png);
-                        }
-                    }
 
                     &.add {
                         background-image: url(../../static/add.png);
@@ -299,7 +303,7 @@
 
                 &>.input-item {
                     font-size: 28rpx;
-                    margin: 40rpx 20rpx;
+                    margin: 70rpx 20rpx;
                     white-space: nowrap;
 
                     &>.sub-title {
@@ -318,14 +322,14 @@
                         }
 
                         .radio {
-                            margin-left: 7rpx;
+                            margin-left: 0rpx;
 
                             &>radio {
                                 transform: scale(0.5);
                             }
 
                             &>text {
-                                margin-left: -7rpx;
+                                margin-left: -14rpx;
                             }
                         }
                     }
@@ -338,7 +342,7 @@
                         width: 30%;
                         display: inline-block;
                         font-size: 28rpx;
-                        margin: 20rpx;
+                        margin: 50rpx 20rpx;
                     }
                 }
             }
@@ -363,18 +367,27 @@
                     background-repeat: no-repeat;
                     background-position: left center;
                     min-height: 30rpx;
-
-                    &.remark {
-                        background-image: url(../../static/ico3.png);
-                    }
+                    background-size: 40rpx auto;
 
                     &.study,
+                        {
+                        background-image: url(../../static/study.png);
+                    }
+
                     &.work {
-                        background-image: url(../../static/ico1.png);
+                        background-image: url(../../static/work.png);
+                    }
+
+                    &.body {
+                        background-image: url(../../static/body.png);
                     }
 
                     &.willdo {
-                        background-image: url(../../static/ico2.png);
+                        background-image: url(../../static/willdo.png);
+                    }
+
+                    &.remark {
+                        background-image: url(../../static/remark.png);
                     }
                 }
 

@@ -10,11 +10,6 @@
             "style": {
                 "navigationBarTitleText": "查看/编辑"
             }
-        }, {
-            "path": "pages/notify/notify",
-            "style": {
-                "navigationBarTitleText": "通知"
-            }
         }
     ],
     "globalStyle": {
